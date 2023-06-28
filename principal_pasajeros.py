@@ -73,9 +73,12 @@ class PrincipalPasajeros(QMainWindow):
         self.ventana_agregar_pasajero.show()
     
     def eliminar_pasajero(self):
-        selected_row = self.table.currentRow()
-        self.lista_pasajeros.remove(self.table.item((self.table.currentRow()),0).text())
-        self.table.removeRow(selected_row)
+        if (self.table.item((self.table.currentRow()),0)) is not None:
+            selected_row = self.table.currentRow()
+            self.lista_pasajeros.remove(self.table.item((self.table.currentRow()),0).text())
+            self.table.removeRow(selected_row)
+        else:
+            QMessageBox.critical(None, "Error", "No hay pasajeros a eliminar")
     
     def agregar_pasajero(self):
         row_count = self.table.rowCount()
