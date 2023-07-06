@@ -3,7 +3,7 @@ from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
 from agregar_pasajero import*
 from ver_pulsera import *
-
+import re
 
 class PrincipalPasajeros(QMainWindow):
     def __init__(self):
@@ -82,11 +82,18 @@ class PrincipalPasajeros(QMainWindow):
     
     def agregar_pasajero(self):
         row_count = self.table.rowCount()
+        nombre_pasajero = self.ventana_agregar_pasajero.nombre
+    
+        # verifica si el nombre contiene solo letras
+        if not re.match("^[a-zA-Z]+$", nombre_pasajero):
+            QMessageBox.critical(self, "Error", "El nombre solo debe contener letras.")
+            return
+
         self.table.insertRow(row_count)
         item = QTableWidgetItem(self.ventana_agregar_pasajero.nombre)
         item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
         self.table.setItem(row_count, 0, item)
-        #Añade el pasajero agregado a la lista temporal de pasajeros
+        # añade el pasajero agregado a la lista temporal de pasajeros
         self.lista_pasajeros.append(self.ventana_agregar_pasajero.nombre)
 
         button = QPushButton("Ver pulsera")
@@ -100,6 +107,7 @@ class PrincipalPasajeros(QMainWindow):
         button_layout.setContentsMargins(0, 0, 0, 0)
         layout_widget.setLayout(button_layout)
         self.table.setCellWidget(row_count, 1, layout_widget)
+
     
     #Funcion que envia pasajeros a la ventana principal
     def send_pasajeros(self):

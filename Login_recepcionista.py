@@ -47,7 +47,7 @@ class Login(QWidget):
         ingresar_button.setDefault(True)
         ingresar_button.clicked.connect(self.iniciarventanaingreso)
 
-        registro_button = QPushButton("Registrase")
+        registro_button = QPushButton("Registrarse")
         registro_button.clicked.connect(self.iniciarventanaderegistro)
 
         layout = QHBoxLayout()
@@ -110,7 +110,7 @@ class Login(QWidget):
                     else:
                         QMessageBox.information(self,"Advertencia", "La contraseña ingresada es incorrecta", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self,"Eror", "El usuario ingresado no existe", QMessageBox.StandardButton.Ok,QMessageBox.StandardButton.Ok)
+                    QMessageBox.warning(self,"Error", "El usuario ingresado no existe", QMessageBox.StandardButton.Ok,QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.information(self,"Advertencia","Ingrese los datos correctamente",QMessageBox.StandardButton.Ok,QMessageBox.StandardButton.Ok)
         except FileNotFoundError:
@@ -142,7 +142,7 @@ if __name__ == "__main__":
                 temp.write("rut,contrasena\n")
             elif archivo == "data/reservas.csv":
                 temp.write("nombre_reservante,fecha_de_nacimiento,habitaciones,tiempo_estadia,fecha,tarjeta,pasajeros\n")
-            elif archivo == "data/descuentos_gerenciales.csv":
+            elif archivo == "data/descuentos_gerenciales.csv": 
                 temp.write("rut_gerente,descuento,fecha\n")
             elif archivo == "data/pagos_efectivo.csv":
                 temp.write("monto,fecha\n")

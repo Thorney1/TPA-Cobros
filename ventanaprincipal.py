@@ -4,7 +4,8 @@ from PyQt6.QtCore import Qt
 from costos import costos
 from principal_pasajeros import *
 import csv
-
+import re
+import datetime
 class ventanaprincipal(QDialog):   
 
     def __init__(self):
@@ -50,18 +51,32 @@ class ventanaprincipal(QDialog):
         fechaN_label = QLabel("Fecha de nacimiento")
         fechaN_label.setFixedWidth(120)
         self.fechaN_input = QDateEdit()
+        #restriccion fecha maxima
+        fecha_actual = datetime.date.today()
+        self.fechaN_input.setMaximumDate(fecha_actual)
+        #restriccion 18 años, siempre comenzara con una fecha para que el titular de la reserva sea mayor
+        fecha_minima = fecha_actual - datetime.timedelta(days=365 * 18)
+        self.fechaN_input.setDateRange(fecha_minima, fecha_actual)
 
         habitacion_label = QLabel("Habitaciones")
         habitacion_label.setFixedWidth(120)
         self.habitacion_input = QSpinBox()
-
-        estadia_label = QLabel("Tiempo de estadia")
+        self.habitacion_input.setMinimum(1)
+        
+        estadia_label = QLabel("Tiempo de estadia(Días)")
         estadia_label.setFixedWidth(120)
         self.estadia_input = QLineEdit()
+        self.estadia_input.setInputMask("99")
 
         fecha_label = QLabel("Fecha")
         fecha_label.setFixedWidth(120)
         self.fecha_input = QDateEdit()
+        #fecha inicial el dia actual
+        fecha_actual1 = datetime.date.today()
+        self.fecha_input.setDate(fecha_actual1)
+        #no se pueda retroceder de la fecha actual(mejor del mes actual)
+        self.fecha_input.setCalendarPopup(False)
+
 
         pasajeros_button = QPushButton("Pasajeros")
         pasajeros_button.clicked.connect(self.iniciarVentanaPasajero)
@@ -146,37 +161,46 @@ class ventanaprincipal(QDialog):
         self.setLayout(Vlayout)
 
     def guardar_datos(self):
-        #COMPROBAR SI LOS CAMPOS ESTAN VACIOS O NO
-        if self.campos_vacios() == False:
-            #Verificar tarjeta
-            if len(self.numtarjeta_input.text()) == 19 and len(self.cvc_input.text()) == 3:
-                #una vez que se presiona guardar datos se reciben los pasajeros de la ventana agregar_pasajero.py
-                self.reserva_temp["pasajeros"]= self.principal_pasajeros.send_pasajeros()
-                #limpia la lista de pasajeros de la ventana pasajeros
-                self.reserva_temp["nombre_reservante"] = self.nombre_input.text()
-                self.reserva_temp["fecha_de_nacimiento"] = self.fechaN_input.text()
-                self.reserva_temp["habitaciones"] = self.habitacion_input.text()
-                self.reserva_temp["tiempo_estadia"] = self.estadia_input.text()
-                self.reserva_temp["fecha"] = self.fecha_input.text()
-                self.reserva_temp["tarjeta"]["titular"] = self.nombretarjeta_input.text()
-                self.reserva_temp["tarjeta"]["numero"] = self.numtarjeta_input.text()
-                self.reserva_temp["tarjeta"]["fecha"] = self.expiracion_input.text()
-                self.reserva_temp["tarjeta"]["cvc"] = self.cvc_input.text()
-    
-                archivo = open("data/reservas.csv", "a+")
-                cabeceras = list(self.reserva_temp.keys())
-                writer = csv.DictWriter(archivo, fieldnames=cabeceras)
-                writer.writerow(self.reserva_temp)
-    
-                archivo.close()
-                #una vez que se guardan los datos, se borra self.pasajeros_reserva + se limpia todos los campos
-                self.limpiar_campos()
-                QMessageBox.information(self, "Datos guardados", "Los datos se han guardado correctamente", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
-            else:
-                QMessageBox.warning(self,"Error", "Verifique que los datos de la tarjeta sean correctos", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
-        else:
+    # se verifica si los campos estan vacios
+        if self.campos_vacios() == True:
             QMessageBox.warning(self, "Error", "Verifique que todos los campos han sido rellenados y que los pasajeros han sido añadidos", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            return
     
+    # verifica que los datos de la tarjeta esten corrrectos
+        if len(self.numtarjeta_input.text()) != 19 or len(self.cvc_input.text()) != 3:
+            QMessageBox.warning(self, "Error", "Verifique que los datos de la tarjeta sean correctos", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            return
+
+    # verifica caracteres no validos en nombre y titular de tarjeta
+        if not re.match(r'^[A-Za-z\s]+$', self.nombre_input.text()) or not re.match(r'^[A-Za-z\s]+$', self.nombretarjeta_input.text()):
+            QMessageBox.warning(self, "Error", "Verifique que los datos de nombre y titular de tarjeta sean válidos.", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            return
+
+    # una vez que se presiona guardar datos se reciben los pasajeros de la ventana agregar_pasajero.py
+        self.reserva_temp["pasajeros"] = self.principal_pasajeros.send_pasajeros()
+    # limpia la lista de pasajeros de la ventana pasajeros
+        self.reserva_temp["nombre_reservante"] = self.nombre_input.text()
+        self.reserva_temp["fecha_de_nacimiento"] = self.fechaN_input.text()
+        self.reserva_temp["habitaciones"] = self.habitacion_input.text()
+        self.reserva_temp["tiempo_estadia"] = self.estadia_input.text()
+        self.reserva_temp["fecha"] = self.fecha_input.text()
+        self.reserva_temp["tarjeta"]["titular"] = self.nombretarjeta_input.text()
+        self.reserva_temp["tarjeta"]["numero"] = self.numtarjeta_input.text()
+        self.reserva_temp["tarjeta"]["fecha"] = self.expiracion_input.text()
+        self.reserva_temp["tarjeta"]["cvc"] = self.cvc_input.text()
+
+        archivo = open("data/reservas.csv", "a+")
+        cabeceras = list(self.reserva_temp.keys())
+        writer = csv.DictWriter(archivo, fieldnames=cabeceras)
+        writer.writerow(self.reserva_temp)
+
+        archivo.close()
+    #una vez que se guardan los datos, se borra self.pasajeros_reserva + se limpia todos los campos
+        self.limpiar_campos()
+        QMessageBox.information(self, "Datos guardados", "Los datos se han guardado correctamente", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+
+        
+        
     def iniciarventanacostos(self):
         self.ventanacostos = costos()
         self.ventanacostos.show()
