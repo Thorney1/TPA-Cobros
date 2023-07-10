@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget , QLabel , QLineEdit , QHBoxLayout ,QVBoxLayout , QPushButton ,QDateEdit , QSpinBox , QMessageBox , QDialog
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtCore import Qt 
+from PyQt6.QtCore import Qt ,QDate
 from costos import costos
 from principal_pasajeros import *
 import csv
@@ -71,9 +71,7 @@ class ventanaprincipal(QDialog):
         fecha_label = QLabel("Fecha")
         fecha_label.setFixedWidth(120)
         self.fecha_input = QDateEdit()
-        #fecha inicial el dia actual
-        fecha_actual1 = datetime.date.today()
-        self.fecha_input.setDate(fecha_actual1)
+        self.fecha_input.setMinimumDate(QDate.currentDate())
         #no se pueda retroceder de la fecha actual(mejor del mes actual)
         self.fecha_input.setCalendarPopup(False)
 
@@ -95,7 +93,7 @@ class ventanaprincipal(QDialog):
         
         expiracion_label = QLabel("Fecha de expiracion")
         self.expiracion_input = QDateEdit()
-
+        self.expiracion_input.setMinimumDate(QDate.currentDate())
         cvc_label = QLabel("CVC")
         self.cvc_input = QLineEdit()
         self.cvc_input.setInputMask("999")
