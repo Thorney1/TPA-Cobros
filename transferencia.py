@@ -28,9 +28,6 @@ class Transferencia(QDialog):
         nombreHotel_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         nombreHotel_label.setFixedHeight(30)
 
-        monto_label = QLabel("Monto")
-        monto_input =QLineEdit()
-
         cuenta_label = QLabel("Numero de cuenta:")
         numcuenta_label = QLabel("76483933-4")
 
@@ -46,8 +43,6 @@ class Transferencia(QDialog):
         Hlayout.addStretch()
 
         Hlayout1 = QHBoxLayout()
-        Hlayout1.addWidget(monto_label)
-        Hlayout1.addWidget(monto_input)
 
         Hlayout2 = QHBoxLayout()
         Hlayout2.addWidget(cuenta_label)

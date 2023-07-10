@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QMainWindow, QLabel, QLineEdit, QPushButton, QWidget, QDateEdit, QGridLayout, QMessageBox
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal ,QDate
 
 class AgregarPasajero(QMainWindow):
     mi_signal = pyqtSignal()
@@ -39,6 +39,7 @@ class AgregarPasajero(QMainWindow):
         # Agregar el QLabel y QDateEdit para la fecha de nacimiento
         fecha_label = QLabel("Fecha de nacimiento:")
         fecha_input = QDateEdit()
+        fecha_input.setMaximumDate(QDate.currentDate())
         layout.addWidget(fecha_label, 2, 0)  
         layout.addWidget(fecha_input, 2, 1) 
 

@@ -65,8 +65,9 @@ class ventanaprincipal(QDialog):
         
         estadia_label = QLabel("Tiempo de estadia(Días)")
         estadia_label.setFixedWidth(120)
-        self.estadia_input = QLineEdit()
-        self.estadia_input.setInputMask("99")
+        self.estadia_input = QSpinBox()
+        self.estadia_input.setMinimum(1)
+        self.estadia_input.setMaximum(365)
 
         fecha_label = QLabel("Fecha")
         fecha_label.setFixedWidth(120)
