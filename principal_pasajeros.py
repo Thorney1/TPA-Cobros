@@ -116,6 +116,5 @@ class PrincipalPasajeros(QMainWindow):
     def clean_pasajeros(self):
         self.lista_pasajeros = []
         aux = self.table.rowCount()
-        print(aux)
         for i in range(aux):
             self.table.removeRow(0)

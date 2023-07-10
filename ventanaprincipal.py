@@ -171,7 +171,7 @@ class ventanaprincipal(QDialog):
 
     # verifica caracteres no validos en nombre y titular de tarjeta
         if not re.match(r'^[A-Za-z\s]+$', self.nombre_input.text()) or not re.match(r'^[A-Za-z\s]+$', self.nombretarjeta_input.text()):
-            QMessageBox.warning(self, "Error", "Verifique que los datos de nombre y titular de tarjeta sean válidos.", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            QMessageBox.warning(self, "Error", "Verifique que los datos de nombre y titular de tarjeta sean válidos.", QMessageBox.StandardButton.Close)
             return
 
     # una vez que se presiona guardar datos se reciben los pasajeros de la ventana agregar_pasajero.py
