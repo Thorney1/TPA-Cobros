@@ -1,36 +1,39 @@
-from PyQt6.QtWidgets import QWidget , QLabel , QLineEdit , QHBoxLayout ,QVBoxLayout , QPushButton ,QDateEdit , QSpinBox , QMessageBox , QDialog
+from PyQt6.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QVBoxLayout, QPushButton, QSpinBox, QMessageBox, QDialog
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtCore import Qt ,QDate
+from PyQt6.QtCore import Qt, QDate
 from costos import costos
 from principal_pasajeros import *
 import csv
 import re
 import datetime
-class ventanaprincipal(QDialog):   
 
+class ventanaprincipal(QDialog):
     def __init__(self):
         super().__init__()
         self.inicializarui()
 
     def inicializarui(self):
-        self.setGeometry(100,100,350,250)   
+        self.setGeometry(100, 100, 350, 250)
         self.setWindowTitle("Sistema de cobros de estadia")
         self.contenido()
-        self.show()     
+        self.show()
 
     def contenido(self):
         self.principal_pasajeros = PrincipalPasajeros()
-        #Diccionario que va a contener temporalmente toda la informacion
-        self.reserva_temp = {"nombre_reservante": None,
-                             "fecha_de_nacimiento": None,
-                             "habitaciones": None,
-                             "tiempo_estadia": None,
-                             "fecha": None,
-                             "tarjeta": {"titular": None,
-                                         "numero": None,
-                                         "fecha": None,
-                                         "cvc": None},
-                             "pasajeros": None}
+        self.reserva_temp = {
+            "nombre_reservante": None,
+            "fecha_de_nacimiento": None,
+            "habitaciones": None,
+            "tiempo_estadia": None,
+            "fecha": None,
+            "tarjeta": {
+                "titular": None,
+                "numero": None,
+                "fecha": None,
+                "cvc": None
+            },
+            "pasajeros": None
+        }
 
         logo_label = QLabel()
         logo_pixmap = QPixmap("logo.png")
@@ -40,7 +43,7 @@ class ventanaprincipal(QDialog):
 
         nombreHotel_label = QLabel("Hotel CTCh")
         nombreHotel_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
-        nombreHotel_label.setFixedHeight(30) 
+        nombreHotel_label.setFixedHeight(30)
 
         texto1_label = QLabel("Validar datos de reserva")
 
@@ -51,10 +54,8 @@ class ventanaprincipal(QDialog):
         fechaN_label = QLabel("Fecha de nacimiento")
         fechaN_label.setFixedWidth(120)
         self.fechaN_input = QDateEdit()
-        #restriccion fecha maxima
         fecha_actual = datetime.date.today()
         self.fechaN_input.setMaximumDate(fecha_actual)
-        #restriccion 18 años, siempre comenzara con una fecha para que el titular de la reserva sea mayor
         fecha_minima = fecha_actual - datetime.timedelta(days=365 * 18)
         self.fechaN_input.setDateRange(fecha_minima, fecha_actual)
 
@@ -62,7 +63,7 @@ class ventanaprincipal(QDialog):
         habitacion_label.setFixedWidth(120)
         self.habitacion_input = QSpinBox()
         self.habitacion_input.setMinimum(1)
-        
+
         estadia_label = QLabel("Tiempo de estadia(Días)")
         estadia_label.setFixedWidth(120)
         self.estadia_input = QSpinBox()
@@ -73,9 +74,7 @@ class ventanaprincipal(QDialog):
         fecha_label.setFixedWidth(120)
         self.fecha_input = QDateEdit()
         self.fecha_input.setMinimumDate(QDate.currentDate())
-        #no se pueda retroceder de la fecha actual(mejor del mes actual)
         self.fecha_input.setCalendarPopup(False)
-
 
         pasajeros_button = QPushButton("Pasajeros")
         pasajeros_button.clicked.connect(self.iniciarVentanaPasajero)
@@ -91,10 +90,14 @@ class ventanaprincipal(QDialog):
         numeros_label = QLabel("Numero de tarjeta")
         self.numtarjeta_input = QLineEdit()
         self.numtarjeta_input.setInputMask("9999 9999 9999 9999")
-        
-        expiracion_label = QLabel("Fecha de expiracion")
-        self.expiracion_input = QDateEdit()
-        self.expiracion_input.setMinimumDate(QDate.currentDate())
+
+        expiracion_label = QLabel("Fecha de expiracion (MM/YYYY)")
+        self.expiracion_mes_input = QSpinBox()
+        self.expiracion_mes_input.setRange(1, 12)
+        self.expiracion_anio_input = QSpinBox()
+        current_year = QDate.currentDate().year()
+        self.expiracion_anio_input.setRange(current_year, current_year + 10)
+
         cvc_label = QLabel("CVC")
         self.cvc_input = QLineEdit()
         self.cvc_input.setInputMask("999")
@@ -136,7 +139,8 @@ class ventanaprincipal(QDialog):
         Hlayout7.addWidget(cvc_label)
 
         Hlayout8 = QHBoxLayout()
-        Hlayout8.addWidget(self.expiracion_input)
+        Hlayout8.addWidget(self.expiracion_mes_input)
+        Hlayout8.addWidget(self.expiracion_anio_input)
         Hlayout8.addWidget(self.cvc_input)
 
         Vlayout = QVBoxLayout()
@@ -160,24 +164,19 @@ class ventanaprincipal(QDialog):
         self.setLayout(Vlayout)
 
     def guardar_datos(self):
-    # se verifica si los campos estan vacios
         if self.campos_vacios() == True:
             QMessageBox.warning(self, "Error", "Verifique que todos los campos han sido rellenados y que los pasajeros han sido añadidos", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
             return
-    
-    # verifica que los datos de la tarjeta esten corrrectos
+
         if len(self.numtarjeta_input.text()) != 19 or len(self.cvc_input.text()) != 3:
             QMessageBox.warning(self, "Error", "Verifique que los datos de la tarjeta sean correctos", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
             return
 
-    # verifica caracteres no validos en nombre y titular de tarjeta
         if not re.match(r'^[A-Za-z\s]+$', self.nombre_input.text()) or not re.match(r'^[A-Za-z\s]+$', self.nombretarjeta_input.text()):
             QMessageBox.warning(self, "Error", "Verifique que los datos de nombre y titular de tarjeta sean válidos.", QMessageBox.StandardButton.Close)
             return
 
-    # una vez que se presiona guardar datos se reciben los pasajeros de la ventana agregar_pasajero.py
         self.reserva_temp["pasajeros"] = self.principal_pasajeros.send_pasajeros()
-    # limpia la lista de pasajeros de la ventana pasajeros
         self.reserva_temp["nombre_reservante"] = self.nombre_input.text()
         self.reserva_temp["fecha_de_nacimiento"] = self.fechaN_input.text()
         self.reserva_temp["habitaciones"] = self.habitacion_input.text()
@@ -185,7 +184,7 @@ class ventanaprincipal(QDialog):
         self.reserva_temp["fecha"] = self.fecha_input.text()
         self.reserva_temp["tarjeta"]["titular"] = self.nombretarjeta_input.text()
         self.reserva_temp["tarjeta"]["numero"] = self.numtarjeta_input.text()
-        self.reserva_temp["tarjeta"]["fecha"] = self.expiracion_input.text()
+        self.reserva_temp["tarjeta"]["fecha"] = self.get_expiracion_text()
         self.reserva_temp["tarjeta"]["cvc"] = self.cvc_input.text()
 
         archivo = open("data/reservas.csv", "a+")
@@ -194,19 +193,21 @@ class ventanaprincipal(QDialog):
         writer.writerow(self.reserva_temp)
 
         archivo.close()
-    #una vez que se guardan los datos, se borra self.pasajeros_reserva + se limpia todos los campos
         self.limpiar_campos()
         QMessageBox.information(self, "Datos guardados", "Los datos se han guardado correctamente", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
 
-        
-        
+    def get_expiracion_text(self):
+        mes = str(self.expiracion_mes_input.value())
+        anio = str(self.expiracion_anio_input.value())
+        return mes + "/" + anio
+
     def iniciarventanacostos(self):
         self.ventanacostos = costos()
         self.ventanacostos.show()
 
     def iniciarVentanaPasajero(self):
         self.principal_pasajeros.show()
-    
+
     def limpiar_campos(self):
         self.nombre_input.clear()
         self.fechaN_input.clear()
@@ -215,13 +216,13 @@ class ventanaprincipal(QDialog):
         self.fecha_input.clear()
         self.nombretarjeta_input.clear()
         self.numtarjeta_input.clear()
-        self.expiracion_input.clear()
+        self.expiracion_mes_input.clear()
+        self.expiracion_anio_input.clear()
         self.cvc_input.clear()
         self.principal_pasajeros.clean_pasajeros()
-    
+
     def campos_vacios(self):
         if len(self.principal_pasajeros.send_pasajeros()) != 0 and self.nombre_input.isModified() == True and self.nombretarjeta_input.isModified() == True and self.numtarjeta_input.isModified() and self.cvc_input.isModified() == True:
             return False
         else:
             return True
-
