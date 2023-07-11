@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QLabel , QLineEdit , QSpinBox , QDateEdit , QPushButton , QDialog , QHBoxLayout , QVBoxLayout , QMessageBox
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt,QDate
 
 class gerente(QDialog):
 
@@ -42,6 +42,7 @@ class gerente(QDialog):
         fecha_label = QLabel("Fecha")
         fecha_label.setFixedWidth(120)
         self.fecha_input = QDateEdit()
+        self.fecha_input.setMinimumDate(QDate.currentDate())
 
         cancelar_button = QPushButton("Cancelar")
         cancelar_button.clicked.connect(self.cerrarventana)

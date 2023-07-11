@@ -110,12 +110,15 @@ class ventanaderegistro(QDialog):
             else:
                 #Registrarlo
                 if self.user_input.text() != "-" and self.password1_label_input.isModified() == True and self.password2_label_input.isModified() == True and (len(self.user_input.text())==10 or len(self.user_input.text())==9):
-                    if self.password1_label_input.text() == self.password2_label_input.text():
-                        archivo.write(f"\n{self.user_input.text()},{self.password1_label_input.text()}")
-                        QMessageBox.information(self, "Exito", "El usuario ha sido registrado correctamente", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
-                        self.close()
+                    if len(self.password1_label_input.text())>4:
+                        if self.password1_label_input.text() == self.password2_label_input.text():
+                            archivo.write(f"\n{self.user_input.text()},{self.password1_label_input.text()}")
+                            QMessageBox.information(self, "Exito", "El usuario ha sido registrado correctamente", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+                            self.close()
+                        else:
+                            QMessageBox.warning(self, "Error", "Las contraseñas deben ser idénticas, por favor inténtelo de nuevo", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
                     else:
-                        QMessageBox.warning(self, "Error", "Las contraseñas deben ser idénticas, por favor inténtelo de nuevo", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+                        QMessageBox.warning(self,"Error", "La contraseña debe tener un largo minimo de 5 caracteres")
                 else:
                     QMessageBox.information(self,"Advertencia","Ingrese los datos correctamente",QMessageBox.StandardButton.Ok,QMessageBox.StandardButton.Ok)
         except FileNotFoundError:

@@ -50,7 +50,7 @@ class costos(QDialog):
         texto_label = QLabel("Calcular costos de estadia")
 
         #Aun no hace nada
-        ok_button = QPushButton("Ok")
+        ok_button = QPushButton("Aplicar Descuento Gerencial")
         ok_button.clicked.connect(self.actualizar_descuento)
 
         cuadro_label = QLabel("Total: $")
@@ -112,28 +112,24 @@ class costos(QDialog):
         self.ventana_pago.show()
     
     def actualizar_descuento(self):
-        archivo = open("data/descuentos_gerenciales.csv","r+")
-        for linea in archivo:
-            pass
-        if linea != "rut_gerente,descuento,fecha":
-            if linea != "#":
-                #El simbolo "#" representa que el ultimo descuento presente en el archivo "descuentos_gerenciales.csv"
-                #Fue utilizado
-                archivo.write("#")
-                porcentaje = linea.split(",")
-                porcentaje = int(porcentaje[1])
-                if self.descuento_efectuado == False:
-                    self.porcentaje_descuento.setValue(self.porcentaje_descuento.value()+porcentaje)
-                    self.descuento_button.setEnabled(False)
-                    self.descuento_efectuado = True
-                    archivo.close()
-                else:
-                    archivo.close()
-                    pass
-            else:
-                archivo.close()
+        archivo = open("data/descuentos_gerenciales.csv", "r")
+        lineas = archivo.readlines()
+        archivo.close()
+
+        if lineas:
+            ultima_linea = lineas[-1].strip()
+            if ultima_linea != "#" and ultima_linea != "rut_gerente,descuento,fecha":
+                porcentaje = int(ultima_linea.split(",")[1])
+                self.porcentaje_descuento.setValue(porcentaje)
                 self.descuento_button.setEnabled(False)
                 self.descuento_efectuado = True
+                lineas[-1] = "#\n"
+
+        archivo = open("data/descuentos_gerenciales.csv", "w")
+        archivo.writelines(lineas)
+        archivo.close()
+    
+
 
     def volver(self):
         archivo = open("data/descuentos_gerenciales.csv", "a")

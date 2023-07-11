@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget , QLabel , QLineEdit , QHBoxLayout ,QVBoxLayout , QPushButton ,QDateEdit , QSpinBox , QMessageBox , QDialog
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtCore import Qt 
+from PyQt6.QtCore import Qt ,QDate
 from costos import costos
 from principal_pasajeros import *
 import csv
@@ -65,15 +65,14 @@ class ventanaprincipal(QDialog):
         
         estadia_label = QLabel("Tiempo de estadia(Días)")
         estadia_label.setFixedWidth(120)
-        self.estadia_input = QLineEdit()
-        self.estadia_input.setInputMask("99")
+        self.estadia_input = QSpinBox()
+        self.estadia_input.setMinimum(1)
+        self.estadia_input.setMaximum(365)
 
         fecha_label = QLabel("Fecha")
         fecha_label.setFixedWidth(120)
         self.fecha_input = QDateEdit()
-        #fecha inicial el dia actual
-        fecha_actual1 = datetime.date.today()
-        self.fecha_input.setDate(fecha_actual1)
+        self.fecha_input.setMinimumDate(QDate.currentDate())
         #no se pueda retroceder de la fecha actual(mejor del mes actual)
         self.fecha_input.setCalendarPopup(False)
 
@@ -95,7 +94,7 @@ class ventanaprincipal(QDialog):
         
         expiracion_label = QLabel("Fecha de expiracion")
         self.expiracion_input = QDateEdit()
-
+        self.expiracion_input.setMinimumDate(QDate.currentDate())
         cvc_label = QLabel("CVC")
         self.cvc_input = QLineEdit()
         self.cvc_input.setInputMask("999")
@@ -173,7 +172,7 @@ class ventanaprincipal(QDialog):
 
     # verifica caracteres no validos en nombre y titular de tarjeta
         if not re.match(r'^[A-Za-z\s]+$', self.nombre_input.text()) or not re.match(r'^[A-Za-z\s]+$', self.nombretarjeta_input.text()):
-            QMessageBox.warning(self, "Error", "Verifique que los datos de nombre y titular de tarjeta sean válidos.", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            QMessageBox.warning(self, "Error", "Verifique que los datos de nombre y titular de tarjeta sean válidos.", QMessageBox.StandardButton.Close)
             return
 
     # una vez que se presiona guardar datos se reciben los pasajeros de la ventana agregar_pasajero.py
