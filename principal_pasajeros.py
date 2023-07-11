@@ -85,9 +85,10 @@ class PrincipalPasajeros(QMainWindow):
         nombre_pasajero = self.ventana_agregar_pasajero.nombre
     
         # verifica si el nombre contiene solo letras
-        if not re.match("^[a-zA-Z]+$", nombre_pasajero):
+        if not re.match("^[a-zA-Z\s]+$", nombre_pasajero):
             QMessageBox.critical(self, "Error", "El nombre solo debe contener letras.")
-            return 
+            return
+
 
         self.table.insertRow(row_count)
         item = QTableWidgetItem(self.ventana_agregar_pasajero.nombre)
